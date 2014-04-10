@@ -5,7 +5,7 @@ A small collection of functions to manipulate and query nested Javascript object
 
 
 License
-=======
+-------
 
 The MIT License (MIT)
 
