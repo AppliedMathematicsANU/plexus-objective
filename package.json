@@ -1,0 +1,24 @@
+{
+  "name": "plexus-objective",
+  "version": "0.0.1",
+  "description": "A small collection of functions to manipulate and query nested Javascript objects.",
+  "keywords": [
+    "utility",
+    "nested",
+    "object"
+  ],
+  "homepage": "https://github.com/AppliedMathematicsANU/plexus-objective",
+  "bugs": {
+    "url": "https://github.com/AppliedMathematicsANU/plexus-objective/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Olaf Delgado-Friedrichs",
+    "email": "olaf.delgado@gmail.com"
+  },
+  "main": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AppliedMathematicsANU/plexus-objective.git"
+  }
+}
