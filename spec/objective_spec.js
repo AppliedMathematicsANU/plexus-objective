@@ -80,25 +80,26 @@ var modified = function(obj, key, val) {
     else if (val !== undefined)
       result[k] = val;
   }
+
   return result;
 };
 
 
-var shrinkObj = function(n) {
+var shrinkObj = function(shrinkVal) {
   return function(obj) {
-    var result = {};
+    var result = [];
     var k, j, tmp;
 
-    for (k in Object.keys(obj))
+    for (k in obj)
       result.push(modified(obj, k));
 
-    for (k in Object.keys(obj)) {
-      tmp = shrinkElement(obj[k]);
+    for (k in obj) {
+      tmp = shrinkVal(obj[k]);
       for (j in tmp)
         result.push(modified(obj, k, tmp[j]));
     }
 
-    return result;    
+    return result;
   };
 };
 
@@ -140,18 +141,14 @@ var verifyValues = function(expected, obj) {
 
 describe('the object function', function() {
   var checkKeys = function(list) {
-    var obj = ou.object.apply(null, list);
     var expected = {};
-    var i;
-
-    for (i = 0; i+1 < list.length; i += 2)
+    for (var i = 0; i+1 < list.length; i += 2)
       expected[list[i]] = true;
 
-    return verifyKeys(expected, obj);
+    return verifyKeys(expected, ou.object.apply(null, list));
   };
 
   var checkValues = function(list) {
-    var obj = ou.object.apply(null, list);
     var expected = [];
     var seen = {};
     var i, key, val;
@@ -165,7 +162,7 @@ describe('the object function', function() {
       seen[key] = true;
     }
 
-    return verifyValues(expected, obj);
+    return verifyValues(expected, ou.object.apply(null, list));
   };
 
   describe('when given only integer arguments', function() {
@@ -179,11 +176,11 @@ describe('the object function', function() {
         return comfy.failure();
     };
 
-    it('returns an array', function() { 
+    it('returns an array', function() {
       expect(checkArray).toSucceedOn(gen, shrink);
     });
 
-    it('sets the correct keys', function() { 
+    it('sets the correct keys', function() {
       expect(checkKeys).toSucceedOn(gen, shrink);
     });
 
@@ -196,7 +193,71 @@ describe('the object function', function() {
     var gen = genList(genKey);
     var shrink = shrinkList(shrinkKey);
 
-    it('sets the correct keys', function() { 
+    it('sets the correct keys', function() {
+      expect(checkKeys).toSucceedOn(gen, shrink);
+    });
+
+    it('sets the correct values', function() {
+      expect(checkValues).toSucceedOn(gen, shrink);
+    });
+  });
+});
+
+
+describe('the merge function', function() {
+  var checkKeys = function(list) {
+    var expected = {};
+    for (var i in list)
+      for (var k in list[i])
+        expected[k] = true;
+
+    return verifyKeys(expected, ou.merge.apply(null, list));
+  };
+
+  var checkValues = function(list) {
+    var expected = [];
+    var seen = {};
+
+    for (var i = list.length-1; i >= 0; --i) {
+      for (var k in list[i]) {
+        if (!seen[k])
+          expected.push([k, list[i][k]]);
+        seen[k] = true;
+      }
+    }
+
+    return verifyValues(expected, ou.merge.apply(null, list));
+  };
+
+  describe('when given only arrays', function() {
+    var gen = genList(genList(genKey));
+    var shrink = shrinkList(shrinkList(shrinkKey));
+
+    var checkArray = function(list) {
+      if (Array.isArray(ou.merge.apply(null, list)))
+        return comfy.success();
+      else
+        return comfy.failure();
+    };
+
+    it('returns an array', function() {
+      expect(checkArray).toSucceedOn(gen, shrink);
+    });
+
+    it('sets the correct keys', function() {
+      expect(checkKeys).toSucceedOn(gen, shrink);
+    });
+
+    it('sets the correct values', function() {
+      expect(checkValues).toSucceedOn(gen, shrink);
+    });
+  });
+
+  describe('when given non-array arguments', function() {
+    var gen = genList(genObj(genKey, genInt));
+    var shrink = shrinkList(shrinkObj(comfy.shrinkInt));
+
+    it('sets the correct keys', function() {
       expect(checkKeys).toSucceedOn(gen, shrink);
     });
 
