@@ -47,6 +47,20 @@ var genInt = function(n) {
 };
 
 
+var genKey = function(n) {
+  var size = comfy.randomInt(0, n);
+  var t = [];
+  for (var i = 0; i < n/4; ++i)
+    t.push(comfy.oneOf(['a', 'b']));
+  return t.join('');
+};
+
+
+var shrinkKey = function(s) {
+  return [];
+};
+
+
 describe('the object function', function() {
   var checkKeys = function(list) {
     var obj = ou.object.apply(null, list);
@@ -89,20 +103,33 @@ describe('the object function', function() {
     return comfy.success();
   };
 
-  var checkArray = function(list) {
-    if (Array.isArray(ou.object.apply(null, list)))
-      return comfy.success();
-    else
-      return comfy.failure();
-  };
-
   describe('when given only integer arguments', function() {
     var gen = genList(function(n) { return comfy.randomInt(0, n); });
     var shrink = shrinkList(comfy.shrinkInt);
 
+    var checkArray = function(list) {
+      if (Array.isArray(ou.object.apply(null, list)))
+        return comfy.success();
+      else
+        return comfy.failure();
+    };
+
     it('returns an array', function() { 
       expect(checkArray).toSucceedOn(gen, shrink);
     });
+
+    it('sets the correct keys', function() { 
+      expect(checkKeys).toSucceedOn(gen, shrink);
+    });
+
+    it('sets the correct values', function() {
+      expect(checkValues).toSucceedOn(gen, shrink);
+    });
+  });
+
+  describe('when given string arguments', function() {
+    var gen = genList(genKey);
+    var shrink = shrinkList(shrinkKey);
 
     it('sets the correct keys', function() { 
       expect(checkKeys).toSucceedOn(gen, shrink);
