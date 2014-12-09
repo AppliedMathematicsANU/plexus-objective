@@ -76,6 +76,18 @@ var setIn = function(root, path, value) {
 };
 
 
+var without = function(obj) {
+  var args = [].slice.call(arguments);
+  var result = Array.isArray(obj) ? [] : {};
+
+  for (var key in obj)
+    if (args.indexOf(key) < 0)
+      result[key] = obj[key];
+
+  return result;
+};
+
+
 var prune = function(root) {
   var result, isArray, key, val
 
